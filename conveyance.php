@@ -10,6 +10,12 @@
 
 class Transfer {
 	
+	/**
+	 *	Local Machine Variables
+	 *	These variables set the parameters that are used for local processing prior the to the transfer of data to the AP server.
+	 *
+	 */
+
 	public $user_name;
 	public $dir;
 	public $files;
@@ -22,12 +28,25 @@ class Transfer {
 	public $download;
 	public $expected;
 	public $matches;
+	
+	/**
+	 * 	AP Server Command Variables
+	 *	These commands are used to logon to the AP server and transfer the files.
+	 *
+	 */
+	public $login_command;
+	public $zip_command;
+	public $scp_copy_command;
+	public $delete_command;
+	public $transfer_command;
+	public $count_command;
+	public $
 	public $destination_directory;
 
 
 	/**
 	 *	Constants
-	 *	Proxy and useragent for curl functions.
+	 *	Web proxy and browser useragent for curl functions.
 	 *
 	 */
 	const PROXY = "http://h1proxy.frb.org:8080/";
@@ -155,6 +174,7 @@ class Transfer {
 			{
 				echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series. "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
 				$this->loading_animation();
+				//$this->transfer_series();
 			} 
 			elseif ($this->expected > $this->series_count)
 			{
@@ -193,6 +213,8 @@ class Transfer {
 
 	}
 
+	public function zip_files() {
+	}
 
 	public function compare_transferred() {
 	}
