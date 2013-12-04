@@ -244,13 +244,24 @@ class Transfer {
 		}
 
 	}
-/*	public function __destruct() {
+	
+	/**
+	 * Destructor
+	 *
+	 */
+
+	public function __destruct() {
 		
 	}
-*/
+
 
 }
 
+
+/**
+ *	FOR DEBUGGING PURPOSES ONLY
+ *
+ */
 $test = new Transfer();
 $test->get_username();
 $test->validate_dir();
