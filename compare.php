@@ -42,7 +42,7 @@ class Transfer {
 	 * 	Constructor function to initialize class and declare variables.
 	 *
 	 */
-	public function __construct(/*$dir, $release_id*, *$expected_series_count*/) {
+	public function __construct(/*$dir, $release_id*, *$frequency*/) {
 
 		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));;
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/"; //$dir
@@ -51,7 +51,7 @@ class Transfer {
 		$this->series_count = ($this->file_count)/2;
 		$this->api_key = "76bb1186e704598b725af0a27159fdfc";
 		$this->release_id = 97; //$release_id;
-		//$this->expected_series_count = $expected_series_count;
+		//$this->frequency = $frequency;
 		$this->request = "http://api.stlouisfed.org/fred/release/series?release_id=$this->release_id&api_key=$this->api_key&file_type=json";
 		$this->ch = curl_init();
 		$this->download_obj = curl_exec($this->ch);
@@ -219,14 +219,15 @@ class Transfer {
 	public function json_test() {
 		
 		$this->download_json();
-		$json = json_decode($this->download_obj);
+		$json = json_decode($this->download_obj, true);
 		if (isset($json)) 
 		{
 			echo "true\n";
-			foreach ($json as $obj) 
+			/*foreach ($json as $obj) 
 			{
 				echo $obj."\n";
-			}
+			}*/
+			var_dump($json);
 		} 
 		else
 		{
@@ -254,9 +255,9 @@ class Transfer {
  *
  */
 $test = new Transfer();
-$test->get_username();
+/*$test->get_username();
 $test->validate_dir();
 $test->count_files();
-$test->count_series();
-/*$test->json_test();*/
+$test->count_series();*/
+$test->json_test();
 ?>
