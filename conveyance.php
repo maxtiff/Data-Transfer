@@ -1,4 +1,4 @@
-0<?php
+<?php
 
 /** 
  * 	Transfer class for datadesk_workflow
@@ -76,7 +76,7 @@ class Transfer {
 		$os = php_uname("s");
 		if ($os == 'Linux') 
 		{
-			$this->dir = preg_replace($this->dir, "/home-ldap/$this->user_name/", $this->dir);
+			$this->dir = preg_replace("C:/Users/$this->user_name/Documents/test_directory/", "/home-ldap/$this->user_name/", $this->dir);
 		}
 		else 
 		{
@@ -156,9 +156,16 @@ class Transfer {
 				echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series. "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
 				$this->loading_animation();
 			} 
-			else 
+			elseif ($this->expected > $this->series_count)
 			{
-				echo "There is a discrepancy between the number of expected series and the number of series in the directory. Please see the log for details.\n";
+				echo "There are fewer series to transfer than expected. Please see the log for details.\n";
+				$this->series_different();
+				//Logging goes here.
+				exit;
+			} 
+			else
+			{
+				echo "There are more series to transfer than expected. Please see the log for details.\n";
 				$this->series_different();
 				//Logging goes here.
 				exit;
@@ -169,7 +176,15 @@ class Transfer {
 
 	public function series_different() {
 
-		echo $this->expected." does not equal ".$this->series_count."."."\n";
+		if ($this->expected > $this->series_count)
+		{
+			echo $this->expected." expected series is greater than ".$this->series_count."."."\n";	
+		}
+		else
+		{
+			echo $this->expected." expected series is less than ".$this->series_count."."."\n";
+		}
+		
 	}
 
 
@@ -239,7 +254,7 @@ class Transfer {
 $test = new Transfer();
 $test->get_username();
 $test->validate_dir();
-/*$test->count_files();
+$test->count_files();
 $test->count_series();
-$test->json_test();*/
+/*$test->json_test();*/
 ?>
