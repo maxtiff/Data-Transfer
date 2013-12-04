@@ -20,6 +20,7 @@
 	public $count_command;
 	public $
 	public $destination_directory;
+	public $script_commands;
 
 
 	public function __construct() {
@@ -35,7 +36,7 @@
 
 	public function transfer_series() {
 
-		
+
 	}
 
 	public function zip_files() {
