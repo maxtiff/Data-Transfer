@@ -149,7 +149,7 @@ class Transfer {
 	 *
 	 */
 	public function get_username() {
-		echo gettype($this->download_obj);
+		
 		echo "Username: ".$this->user_name."\n";
 	}
 
@@ -303,7 +303,7 @@ class Transfer {
 	public function json_test() {
 		
 		$this->download_json();
-		$json = json_decode($this->download_obj);
+		$json = json_decode($this->download_obj, true);
 		if (isset($json)) 
 		{
 			echo "true\n";
@@ -311,9 +311,8 @@ class Transfer {
 			{
 				echo $obj."\n";
 			}*/
-			//var_dump($json);
-			$freq = array($json->{'seriess'});
-			echo $freq;
+			var_dump($json);
+			
 		} 
 		else
 		{
@@ -335,16 +334,5 @@ class Transfer {
 
 }
 
-
-/**
- *	FOR DEBUGGING PURPOSES ONLY
- *
- */
-$test = new Transfer();
-$test->get_username();
-/*$test->validate_dir();
-$test->count_files();
-$test->count_series();
-$test->json_test();*/
 
 ?>
