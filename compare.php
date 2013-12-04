@@ -15,17 +15,101 @@ class Transfer {
 	 *	These variables set the parameters that are used for local processing prior the to the transfer of data to the AP server.
 	 *
 	 */
+	
+	/**
+	 *	User name for local directory 	
+	 *
+	 *	@var string
+	 *	@access public 
+	 */
 	public $user_name;
+
+	/**
+	 *	Directory of files to be loaded 	
+	 *
+	 *	@var string
+	 *	@access public 
+	 */
 	public $dir;
+	
+	/**
+	 *	Variable used to remove '..', '.' in order to get correct count of files. Finds the nominal difference between the array of filenames and an array that has '..' and '.' as values.  	
+	 *
+	 *	@var array
+	 *	@access public 
+	 */
 	public $files;
+	
+	/**
+	 *	Records the returned value from $files. 	
+	 *
+	 *	@var integer
+	 *	@access public 
+	 */
 	public $file_count;
+
+	/**
+	 *	Divides the integer in $files by two to get the amount of series that are going to be uploaded. 	
+	 *
+	 *	@var integer
+	 *	@access public 
+	 */
 	public $series_count;
+	
+	/**
+	 *	API key that is used in URL to download JSON object. 	
+	 *
+	 *	@var string
+	 *	@access public 
+	 */
 	public $api_key;
+
+	/**
+	 *	Integer used in URL to download JSON object. 	
+	 *
+	 *	@var integer
+	 *	@access public 
+	 */
 	public $release_id;
+
+	/**
+	 *	URL used to download JSON file through FRED API. 	
+	 *
+	 *	@var string
+	 *	@access public 
+	 */
 	public $request;
+
+	/**
+	 *	Initializes Curl to download JSON object. 	
+	 *
+	 *	@var resource
+	 *	@access public 
+	 */
 	public $ch;
+
+	/**
+	 *	Used to validate if Curl download has initialized. 	
+	 *
+	 *	@var boolean
+	 *	@access public 
+	 */
 	public $download;
+
+	/**
+	 *	Records amount of expected series to upload depending on frequency of series observations. 	
+	 *
+	 *	@var NULL
+	 *	@access public 
+	 */
 	public $expected;
+
+	/**
+	 *	Validates that expected count of series is correct by preg_matching a number from the JSON object.. 	
+	 *
+	 *	@var NULL
+	 *	@access public 
+	 */
 	public $matches;
 
 
@@ -65,7 +149,7 @@ class Transfer {
 	 *
 	 */
 	public function get_username() {
-
+		echo gettype($this->download_obj);
 		echo "Username: ".$this->user_name."\n";
 	}
 
@@ -95,7 +179,7 @@ class Transfer {
 
 
 	public function count_files() {
-
+		
 		echo "There are ".$this->file_count." files."."\n";
 	}
 	
@@ -219,7 +303,7 @@ class Transfer {
 	public function json_test() {
 		
 		$this->download_json();
-		$json = json_decode($this->download_obj, true);
+		$json = json_decode($this->download_obj);
 		if (isset($json)) 
 		{
 			echo "true\n";
@@ -227,7 +311,9 @@ class Transfer {
 			{
 				echo $obj."\n";
 			}*/
-			var_dump($json);
+			//var_dump($json);
+			$freq = array($json->{'seriess'});
+			echo $freq;
 		} 
 		else
 		{
@@ -255,9 +341,10 @@ class Transfer {
  *
  */
 $test = new Transfer();
-/*$test->get_username();
-$test->validate_dir();
+$test->get_username();
+/*$test->validate_dir();
 $test->count_files();
-$test->count_series();*/
-$test->json_test();
+$test->count_series();
+$test->json_test();*/
+
 ?>
