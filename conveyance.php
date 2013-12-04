@@ -1,4 +1,4 @@
-<?php
+0<?php
 
 /** 
  * 	Transfer class for datadesk_workflow
@@ -22,16 +22,23 @@ class Transfer {
 	public $download;
 	public $expected;
 	public $matches;
+	public $destination_directory;
 
-	//Declare constants for Proxy and Useragent
+
+	/**
+	 *	Constants
+	 *	Proxy and useragent for curl functions.
+	 *
+	 */
 	const PROXY = "http://h1proxy.frb.org:8080/";
 	const USERAGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0";
+
 
 	/**
 	 * 	Constructor function to initialize class and declare variables.
 	 *
 	 */
-	public function __construct() {
+	public function __construct(/*$dir, $release_id*, *$expected_series_count*/) {
 
 		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));;
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/"; //$dir
@@ -46,7 +53,9 @@ class Transfer {
 		$this->download_obj = curl_exec($this->ch);
 		$this->expected = NULL;
 		$this->matches = NULL;
+		$this->destination_directory = "/home-ldap/$this->user_name/test_transfer/"; //"/www/fred/data/.../"
 	}
+
 
 	/**
 	 *	Username getter used for debugging
@@ -57,24 +66,37 @@ class Transfer {
 		echo "Username: ".$this->user_name."\n";
 	}
 
+
 	/**
 	 *	Directory getter used for debugging
 	 *
 	 */
-	public function get_dir() {
+	public function validate_dir() {
 
-		echo "File Location: ".$this->dir."\n";
+		$os = php_uname("s");
+		if ($os == 'Linux') 
+		{
+			$this->dir = preg_replace($this->dir, "/home-ldap/$this->user_name/", $this->dir);
+		}
+		else 
+		{
+			echo "File Location: ".$this->dir."\n";
+		}
 	}
+
 
 /*	public function get_expected_count() {
 		
 	}
 */
+
+
 	public function count_files() {
 
 		echo "There are ".$this->file_count." files."."\n";
 	}
 	
+
 	/**
 	 * This function validates the count of series to upload. 
 	 * The program errors out if there is only one file or if there are an odd number of files.
@@ -102,6 +124,7 @@ class Transfer {
 		}
 	}
 	
+
 	public function download_json() {
 
 		curl_setopt($this->ch, CURLOPT_URL, $this->request);
@@ -114,6 +137,7 @@ class Transfer {
 			$this->download_obj = curl_exec($this->ch);
 		}
 	}	
+
 
 	public function compare_series() {
 
@@ -142,40 +166,38 @@ class Transfer {
 		}
 	}
 
+
 	public function series_different() {
 
 		echo $this->expected." does not equal ".$this->series_count."."."\n";
 	}
+
 
 	public function transfer_series() {
 
 
 	}
 
+
 	public function compare_transferred() {
-
-
 	}
+
 
 	public function file_volume_check () {
-
-
 	}
+
 
 	public function success_message() {
 
 		echo "File upload successful.\n";
 	}
 
+
 	public function error_message() {
 
 		echo "Oops. There was an error. Please see the log for details.\n";
 	}
 
-	public function die() {
-
-		
-	}
 
 	public function loading_animation() {
 
@@ -187,7 +209,9 @@ class Transfer {
 		echo "\n";
 	}
 
+
 	public function json_test() {
+		
 		$this->download_json();
 		$json = json_decode($this->download_obj);
 		if (isset($json)) 
@@ -214,8 +238,8 @@ class Transfer {
 
 $test = new Transfer();
 $test->get_username();
-$test->get_dir();
-$test->count_files();
+$test->validate_dir();
+/*$test->count_files();
 $test->count_series();
-/*$test->json_test();*/
+$test->json_test();*/
 ?>
