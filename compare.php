@@ -135,7 +135,7 @@ class Compare {
 		$this->series_count = ($this->file_count)/2;
 		$this->api_key = "76bb1186e704598b725af0a27159fdfc";
 		$this->release_id = 97; //$release_id;
-		$this->frequency = "Monthly";
+		$this->frequency = "M"; //$frequency;
 		$this->request = "http://api.stlouisfed.org/fred/release/series?release_id=$this->release_id&api_key=$this->api_key&file_type=json";
 		$this->ch = curl_init();
 		$this->download_obj = curl_exec($this->ch);
@@ -143,19 +143,8 @@ class Compare {
 		$this->matches = NULL;
 	}
 
-
 	/**
-	 *	Username getter used for debugging
-	 *
-	 */
-	public function get_username() {
-		
-		echo "Username: ".$this->user_name."\n";
-	}
-
-
-	/**
-	 *	Directory getter used for debugging
+	 *	Validate directory dependent on OS. 
 	 *
 	 */
 	public function validate_dir() {
@@ -171,18 +160,6 @@ class Compare {
 		}
 	}
 
-
-/*	public function get_expected_count() {
-		
-	}
-*/
-
-
-	public function count_files() {
-		
-		echo "There are ".$this->file_count." files."."\n";
-	}
-	
 
 	/**
 	 * This function validates the count of series to upload. 
@@ -222,7 +199,7 @@ class Compare {
 		curl_setopt($this->ch, CURLOPT_URL, $this->request);
 		curl_setopt($this->ch, CURLOPT_USERAGENT, Compare::USERAGENT);
 		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER,1);
-		//curl_setopt($this->ch, CURLOPT_PROXY, Compare::PROXY);
+		curl_setopt($this->ch, CURLOPT_PROXY, Compare::PROXY);
 		
 		while (!isset($this->download_obj) || $this->download_obj === false || preg_match("/\<\!DOCTYPE HTML PUBLI/", $this->download_obj)) 
 		{
@@ -230,19 +207,37 @@ class Compare {
 		}
 	}	
 
+	public function get_expected_count($frequency) {
+		
+		$this->frequency = $frequency;
+		$this->download_json();
+		$json = json_decode($this->download_obj);
+		if (isset($json)) 
+		{
+			$i = 0;
+			$expected_count = array();
+			while (isset($json->seriess[$i])) 
+			{
+				$freq_item = ($json->seriess[$i]->frequency_short);
+				if ($freq_item = $frequency)
+				{
+					$expected_count[$i] = $freq_item;
+					$i++;
+				}
+			}
+			$this->expected_count = count($expected_count);
+			echo $this->expected_count;
+		} 
+		else
+		{
+			echo "error";
+			exit;
+		}
+	}
 
 	public function compare_series() {
 
-		$this->download_json();
-		if (!preg_match("/\"count\":(\d*)/", $this->download_obj, $this->matches)) 
-		{
-			echo "Did not find the series count that is listed in the downloaded file.\n";
-			//Logging goes here.
-			exit;
-		} 
-		else 
-		{
-			$this->expected = $this->matches[1];
+			$this->get_expected_count($this->frequency);
 			if ($this->expected == $this->series_count) 
 			{
 				echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series. "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
@@ -263,7 +258,6 @@ class Compare {
 				//Logging goes here.
 				exit;
 			}
-		}
 	}
 
 
@@ -307,28 +301,13 @@ class Compare {
 		echo "\n";
 	}
 
-
-	public function json_test() {
-		
-		$this->download_json();
-		$json = json_decode($this->download_obj, true);
-		if (isset($json)) 
-		{
-			$json_obj = preg_grep("/\"frequency_short\":(M)/", array_values($json));
-		} 
-		else
-		{
-			echo "error";
-			exit;
-		}
-
-	}
 	
 	public function kill() {
 
 		echo "Something has gone horribly wrong. Turn back now...";
 		exit;
 	}
+
 
 	/**
 	 * Destructor
@@ -338,8 +317,6 @@ class Compare {
 	public function __destruct() {
 		
 	}
-
-
 }
 
 ?>
