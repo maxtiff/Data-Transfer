@@ -314,13 +314,14 @@ class Compare {
 		$json = json_decode($this->download_obj, true);
 		if (isset($json)) 
 		{
-			echo "true\n";
-			/*foreach ($json as $obj) 
-			{
-				echo $obj."\n";
-			}*/
-			echo serialize($json);
-			
+			if (preg_match("/\"frequency\":(Monthly)/", serialize($json), $json_matches))
+				{
+					echo "True\n";
+				}
+				else
+				{
+					echo "False\n".json_last_error()."\n";
+				}
 		} 
 		else
 		{
@@ -332,7 +333,7 @@ class Compare {
 	
 	public function kill() {
 
-		echo "Something has gone horribly wrong. Turn back now";
+		echo "Something has gone horribly wrong. Turn back now...";
 		exit;
 	}
 
