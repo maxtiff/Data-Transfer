@@ -314,14 +314,7 @@ class Compare {
 		$json = json_decode($this->download_obj, true);
 		if (isset($json)) 
 		{
-			if (preg_match("/\"frequency\":(Monthly)/", serialize($json), $json_matches))
-				{
-					echo "True\n";
-				}
-				else
-				{
-					echo "False\n".json_last_error()."\n";
-				}
+			$json_obj = preg_grep("/\"frequency_short\":(M)/", array_values($json));
 		} 
 		else
 		{
