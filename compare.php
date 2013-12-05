@@ -210,13 +210,12 @@ class Compare {
 
 	/**
 	 *	This function gets the expected series count by counting all of the series in a release that 
-	 *	have a corresponding frequency.
+	 *	have the required frequency.
 	 *
 	 *
 	 */
 	public function get_expected_count($frequency) {
 		
-		$this->frequency = $frequency;
 		$this->download_json();
 		$json_object = json_decode($this->download_obj);
 		if (isset($json_object)) 
@@ -225,6 +224,7 @@ class Compare {
 			$expected_count = array();
 			while (isset($json_object->seriess[$i])) 
 			{
+				
 				$freq_item = ($json_object->seriess[$i]->frequency_short);
 				
 				if ($freq_item = $frequency)
@@ -247,40 +247,51 @@ class Compare {
 			$this->get_expected_count($this->frequency);
 			if ($this->expected == $this->series_count) 
 			{
-				echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
-				$this->loading_animation();
+				$this->series_count_same();
 				//$this->transfer_series();
 			} 
 			elseif ($this->expected > $this->series_count)
 			{
-				$this->series_different();
+				$this->series_count_different();
 				//Logging goes here.
 				exit;
 			} 
 			else
 			{
-				$this->series_different();
+				$this->series_count_different();
 				//Logging goes here.
 				exit;
 			}
 	}
 
 
-	public function series_different() {
+	public function series_count_different() {
 
 		if ($this->expected > $this->series_count)
 		{
-			echo $this->series_count." series to transfer is less than the ".$this->expected." expected series."."\n";	
+			echo "The ".$this->series_count." series to transfer is less than the ".$this->expected." expected series."."\n";	
 		}
 		elseif ($this->expected < $this->series_count)
 		{
-			echo $this->expected." expected series is less than the".$this->series_count." series to transfer."."\n";
+			echo "The ".$this->series_count." series to transfer is greater than the".$this->expected." expected series."."\n";
 		}
 		else
 		{
 			$this->kill();
 		}
 		
+	}
+
+	public function series_count_same() {
+
+		echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
+
+		for ($seconds = 0; $seconds < 5; $seconds++) 
+		{
+			print ".";
+			sleep(1);
+		}
+		echo "\n";
 	}
 
 
@@ -296,15 +307,7 @@ class Compare {
 	}
 
 
-	public function loading_animation() {
 
-		for ($seconds = 0; $seconds < 5; $seconds++) 
-		{
-			print ".";
-			sleep(1);
-		}
-		echo "\n";
-	}
 
 	
 	public function kill() {
