@@ -11,6 +11,7 @@
 	 *	These commands are used to logon to the AP server and transfer the files.
 	 *
 	 */
+	public $user_name;
 	public $script_commands;
 	public $login_command;
 	public $zip_command;
@@ -25,6 +26,7 @@
 
 	public function __construct() {
 
+		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));;
 		$this->destination_directory = "/home-ldap/$this->user_name/test_transfer/"; //"/www/fred/data/.../"
 		$this->script_commands = array('sh_file_delete_all_files' => "rm -fr ".$source_directory."* 2>&1",
 						   'sh_file_unzip_file' => "unzip -o ".$tmpfdir.$zip_file." -d ".$source_directory." 2>&1",
