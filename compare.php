@@ -17,7 +17,7 @@ class Compare {
 	 */
 	
 	/**
-	 *	User name for local directory 	
+	 *	User name for local directory and AP access. 	
 	 *
 	 *	@var string
 	 *	@access public 
@@ -25,7 +25,7 @@ class Compare {
 	public $user_name;
 
 	/**
-	 *	Directory of files to be loaded 	
+	 *	Directory of files to be loaded. 	
 	 *
 	 *	@var string
 	 *	@access public 
@@ -33,7 +33,8 @@ class Compare {
 	public $dir;
 	
 	/**
-	 *	Variable used to remove '..', '.' in order to get correct count of files. Finds the nominal difference between the array of filenames and an array that has '..' and '.' as values.  	
+	 *	Variable used to remove '..', '.' in order to get correct count of files. Finds the nominal difference between the array of filenames from the 
+	 *	directory and an array that has '..' and '.' as values.  	
 	 *
 	 *	@var array
 	 *	@access public 
@@ -41,7 +42,7 @@ class Compare {
 	public $files;
 	
 	/**
-	 *	Records the returned value from $files. 	
+	 *	Assigned with counted value from $files. 	
 	 *
 	 *	@var integer
 	 *	@access public 
@@ -49,7 +50,7 @@ class Compare {
 	public $file_count;
 
 	/**
-	 *	Divides the integer in $files by two to get the amount of series that are going to be uploaded. 	
+	 *	Divides the integer in $files by two to get the amount of series that will be uploaded. 	
 	 *
 	 *	@var integer
 	 *	@access public 
@@ -57,7 +58,7 @@ class Compare {
 	public $series_count;
 	
 	/**
-	 *	API key that is used in URL to download JSON object. 	
+	 *	FRED API key that is used in URL to download JSON object. 	
 	 *
 	 *	@var string
 	 *	@access public 
@@ -97,20 +98,13 @@ class Compare {
 	public $download;
 
 	/**
-	 *	Records amount of expected series to upload depending on frequency of series observations. 	
+	 *	Records amount of expected series to upload depending on frequency of series observations. Variable is set
+	 *	by the number of occurences in the JSON object. 	
 	 *
 	 *	@var NULL
 	 *	@access public 
 	 */
 	public $expected;
-
-	/**
-	 *	Validates that expected count of series is correct by preg_matching a number from the JSON object.. 	
-	 *
-	 *	@var NULL
-	 *	@access public 
-	 */
-	public $matches;
 
 
 	/**
@@ -162,8 +156,9 @@ class Compare {
 
 
 	/**
-	 * This function validates the count of series to upload. 
-	 * The program errors out if there is only one file, no files, or if there are an odd number of files.
+	 * 	This function validates the count of series to upload. 
+	 * 	The program will error if there is only one file, there are no files, or if 
+	 *	there are an odd number of files.
 	 *
 	 */
 	public function count_series() {
@@ -188,12 +183,17 @@ class Compare {
 		} 
 		else 
 		{
-			echo "There are ".$this->series_count." series."."\n";
+			echo "There are ".$this->series_count." series in the directory to transfer."."\n";
 			$this->compare_series();
 		}
 	}
 	
 
+	/**
+	 *	This function downloads the JSON object that is used to determine the count of series to compare against
+	 *	the count of files in the directory.
+	 *
+	 */
 	public function download_json() {
 
 		curl_setopt($this->ch, CURLOPT_URL, $this->request);
@@ -207,26 +207,33 @@ class Compare {
 		}
 	}	
 
+
+	/**
+	 *	This function gets the expected series count by counting all of the series in a release that 
+	 *	have a corresponding frequency.
+	 *
+	 *
+	 */
 	public function get_expected_count($frequency) {
 		
 		$this->frequency = $frequency;
 		$this->download_json();
-		$json = json_decode($this->download_obj);
-		if (isset($json)) 
+		$json_object = json_decode($this->download_obj);
+		if (isset($json_object)) 
 		{
 			$i = 0;
 			$expected_count = array();
-			while (isset($json->seriess[$i])) 
+			while (isset($json_object->seriess[$i])) 
 			{
-				$freq_item = ($json->seriess[$i]->frequency_short);
+				$freq_item = ($json_object->seriess[$i]->frequency_short);
+				
 				if ($freq_item = $frequency)
 				{
 					$expected_count[$i] = $freq_item;
 					$i++;
 				}
 			}
-			$this->expected_count = count($expected_count);
-			echo $this->expected_count;
+			return $this->expected = count($expected_count);
 		} 
 		else
 		{
@@ -240,20 +247,18 @@ class Compare {
 			$this->get_expected_count($this->frequency);
 			if ($this->expected == $this->series_count) 
 			{
-				echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series. "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
+				echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
 				$this->loading_animation();
 				//$this->transfer_series();
 			} 
 			elseif ($this->expected > $this->series_count)
 			{
-				echo "There are fewer series to transfer than expected. Please see the log for details.\n";
 				$this->series_different();
 				//Logging goes here.
 				exit;
 			} 
 			else
 			{
-				echo "There are more series to transfer than expected. Please see the log for details.\n";
 				$this->series_different();
 				//Logging goes here.
 				exit;
@@ -265,11 +270,11 @@ class Compare {
 
 		if ($this->expected > $this->series_count)
 		{
-			echo $this->series_count." series is less than the ".$this->expected." expected series."."\n";	
+			echo $this->series_count." series to transfer is less than the ".$this->expected." expected series."."\n";	
 		}
 		elseif ($this->expected < $this->series_count)
 		{
-			echo $this->expected." expected series is less than ".$this->series_count."."."\n";
+			echo $this->expected." expected series is less than the".$this->series_count." series to transfer."."\n";
 		}
 		else
 		{
