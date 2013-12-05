@@ -136,8 +136,8 @@ class Compare {
 		$this->file_count = count($this->files);
 		$this->series_count = ($this->file_count)/2;
 		$this->api_key = "76bb1186e704598b725af0a27159fdfc";
-		$this->release_id = 97; //$release_id;
-		$this->frequency = "M"; //$frequency;
+		$this->release_id = 95; //$release_id;
+		$this->frequency = "Q"; //$frequency;
 		$this->request = "http://api.stlouisfed.org/fred/release/series?release_id=$this->release_id&api_key=$this->api_key&file_type=json";
 		$this->ch = curl_init();
 		$this->download_obj = curl_exec($this->ch);
@@ -203,6 +203,81 @@ class Compare {
 		}
 	}
 	
+	
+	/**
+	 *	This function compares the returned value of expected series (from func get_expected_count) against the count of the files in the directory.
+	 *	If the returned value and count matches up the files will be uploaded to FRED.
+	 *	If the returned value is greater than the count then release date exceptions will be added for the non-updated series.
+	 *	If the returned value is less than the count then the program will error and close.
+	 *
+	 */
+	public function compare_series() {
+
+			$this->get_expected_count();
+			if ($this->expected == $this->series_count) 
+			{
+				$this->series_count_same();
+				//$this->transfer_series();
+			} 
+			elseif ($this->expected > $this->series_count)
+			{
+				$this->series_count_different();
+				//Logging goes here.
+				exit;
+			} 
+			else
+			{
+				$this->series_count_different();
+				//Logging goes here.
+				exit;
+			}
+	}
+
+
+	/**
+	 *	This function gets the expected series count by counting all of the series in a release that 
+	 *	have the required frequency.
+	 *
+	 *
+	 */
+	public function get_expected_count() {
+		
+		$this->download_json();
+		$json_object = json_decode($this->download_obj);
+		if (isset($json_object)) 
+		{
+			$i = 0;
+			$expected_count = array();
+			while (isset($json_object->seriess[$i])) 
+			{
+				
+				$freq_item = ($json_object->seriess[$i]->frequency_short);
+				
+				if ($freq_item = $this->frequency)
+				{
+					$expected_count[$i] = $freq_item;
+					$i++;
+				}
+				elseif ($freq_item !== $this->frequency)
+				{
+					echo "Could not determine the series count that is listed in the downloaded file.\n";
+                        //Logging goes here.
+                        exit;
+				}
+				else
+				{
+					$this->kill();
+				}
+			}
+			return $this->expected = count($expected_count);
+		} 
+		else
+		{
+			echo "error";
+			exit;
+		}
+	}
+
 
 	/**
 	 *	This function downloads the JSON object that is used to determine the count of series to compare against
@@ -224,70 +299,6 @@ class Compare {
 
 
 	/**
-	 *	This function gets the expected series count by counting all of the series in a release that 
-	 *	have the required frequency.
-	 *
-	 *
-	 */
-	public function get_expected_count($frequency) {
-		
-		$this->download_json();
-		$json_object = json_decode($this->download_obj);
-		if (isset($json_object)) 
-		{
-			$i = 0;
-			$expected_count = array();
-			while (isset($json_object->seriess[$i])) 
-			{
-				
-				$freq_item = ($json_object->seriess[$i]->frequency_short);
-				
-				if ($freq_item = $frequency)
-				{
-					$expected_count[$i] = $freq_item;
-					$i++;
-				}
-			}
-			return $this->expected = count($expected_count);
-		} 
-		else
-		{
-			echo "error";
-			exit;
-		}
-	}
-
-
-	/**
-	 *	This function compares the returned value of expected series (from func get_expected_count) against the count of the files in the directory.
-	 *	If the returned value and count matches up the files will be uploaded to FRED.
-	 *	If the returned value is greater than the count then release date exceptions will be added for the non-updated series.
-	 *	If the returned value is less than the count then the program will error and close.
-	 *
-	 */
-	public function compare_series() {
-
-			$this->get_expected_count($this->frequency);
-			if ($this->expected == $this->series_count) 
-			{
-				$this->series_count_same();
-				//$this->transfer_series();
-			} 
-			elseif ($this->expected > $this->series_count)
-			{
-				$this->series_count_different();
-				//Logging goes here.
-				exit;
-			} 
-			else
-			{
-				$this->series_count_different();
-				//Logging goes here.
-				exit;
-			}
-	}
-
-	/**
 	 *	Messaging in the event that the expected number of series does not match the number of series to be transferred.
 	 *
 	 *
@@ -296,11 +307,11 @@ class Compare {
 
 		if ($this->expected > $this->series_count)
 		{
-			echo "The ".$this->series_count." series to transfer is less than the ".$this->expected." expected series."."\n";	
+			echo "The ".$this->series_count." series to transfer is less than the ".$this->expected." expected series.\nExiting program.\n";	
 		}
 		elseif ($this->expected < $this->series_count)
 		{
-			echo "The ".$this->series_count." series to transfer is greater than the".$this->expected." expected series."."\n";
+			echo "The ".$this->series_count." series to transfer is greater than the ".$this->expected." expected series.\nExiting program.\n";
 		}
 		else
 		{
@@ -316,7 +327,7 @@ class Compare {
 	 */
 	public function series_count_same() {
 
-		echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
+		echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series "."(".$this->series_count.").\nProceeding to upload the files to FRED";
 
 		for ($seconds = 0; $seconds < 5; $seconds++) 
 		{
