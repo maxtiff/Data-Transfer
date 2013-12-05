@@ -8,7 +8,7 @@
 
 //require dirname(__FILE__) . '\logger.php';
 
-class Transfer {
+class Compare {
 	
 	/**
 	 *	Local Machine Variables
@@ -123,7 +123,7 @@ class Transfer {
 
 
 	/**
-	 * 	Constructor function to initialize class and declare variables.
+	 * 	Constructor function to initialize class and assign variables.
 	 *
 	 */
 	public function __construct(/*$dir, $release_id*, *$frequency*/) {
@@ -135,7 +135,7 @@ class Transfer {
 		$this->series_count = ($this->file_count)/2;
 		$this->api_key = "76bb1186e704598b725af0a27159fdfc";
 		$this->release_id = 97; //$release_id;
-		//$this->frequency = $frequency;
+		$this->frequency = "Monthly";
 		$this->request = "http://api.stlouisfed.org/fred/release/series?release_id=$this->release_id&api_key=$this->api_key&file_type=json";
 		$this->ch = curl_init();
 		$this->download_obj = curl_exec($this->ch);
@@ -186,12 +186,16 @@ class Transfer {
 
 	/**
 	 * This function validates the count of series to upload. 
-	 * The program errors out if there is only one file or if there are an odd number of files.
+	 * The program errors out if there is only one file, no files, or if there are an odd number of files.
 	 *
 	 */
 	public function count_series() {
-
-		if ($this->file_count == 1) 
+		if ($this->file_count == 0)
+		{
+			echo "Error: There are no files in the directory. Exiting program.\n";
+			exit;
+		}
+		elseif ($this->file_count == 1) 
 		{
 			echo "Error: There is only one file in the directory. Exiting program.\n";
 			//Delete files from directory
@@ -216,9 +220,9 @@ class Transfer {
 	public function download_json() {
 
 		curl_setopt($this->ch, CURLOPT_URL, $this->request);
-		curl_setopt($this->ch, CURLOPT_USERAGENT, Transfer::USERAGENT);
+		curl_setopt($this->ch, CURLOPT_USERAGENT, Compare::USERAGENT);
 		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER,1);
-		curl_setopt($this->ch, CURLOPT_PROXY, Transfer::PROXY);
+		//curl_setopt($this->ch, CURLOPT_PROXY, Compare::PROXY);
 		
 		while (!isset($this->download_obj) || $this->download_obj === false || preg_match("/\<\!DOCTYPE HTML PUBLI/", $this->download_obj)) 
 		{
@@ -267,11 +271,15 @@ class Transfer {
 
 		if ($this->expected > $this->series_count)
 		{
-			echo $this->series_count." series is greater than the".$this->expected." series."."\n";	
+			echo $this->series_count." series is less than the ".$this->expected." expected series."."\n";	
+		}
+		elseif ($this->expected < $this->series_count)
+		{
+			echo $this->expected." expected series is less than ".$this->series_count."."."\n";
 		}
 		else
 		{
-			echo $this->expected." expected series is less than ".$this->series_count."."."\n";
+			$this->kill();
 		}
 		
 	}
@@ -311,7 +319,7 @@ class Transfer {
 			{
 				echo $obj."\n";
 			}*/
-			var_dump($json);
+			echo serialize($json);
 			
 		} 
 		else
@@ -322,6 +330,12 @@ class Transfer {
 
 	}
 	
+	public function kill() {
+
+		echo "Something has gone horribly wrong. Turn back now";
+		exit;
+	}
+
 	/**
 	 * Destructor
 	 *
@@ -333,6 +347,5 @@ class Transfer {
 
 
 }
-
 
 ?>
