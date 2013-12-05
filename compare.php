@@ -11,7 +11,7 @@
 class Compare {
 	
 	/**
-	 *	Local Machine Variables
+	 *	Local Network Variables
 	 *	These variables set the parameters that are used for local processing prior the to the transfer of data to the AP server.
 	 *
 	 */
@@ -72,6 +72,14 @@ class Compare {
 	 *	@access public 
 	 */
 	public $release_id;
+
+	/**
+	 * Array used to determine which frequencies are updated with the release.
+	 *
+	 *	@var array
+	 *	@access public
+	 */
+	public $frequency;
 
 	/**
 	 *	URL used to download JSON file through FRED API. 	
@@ -159,6 +167,9 @@ class Compare {
 	 * 	This function validates the count of series to upload. 
 	 * 	The program will error if there is only one file, there are no files, or if 
 	 *	there are an odd number of files.
+	 *	
+	 *	If there are an even number of files the program will proceed to validate whether 
+	 *	the series count matches the expected count of files to be uploaded.
 	 *
 	 */
 	public function count_series() {
@@ -174,17 +185,21 @@ class Compare {
 			//Logging goes here.
 			exit;
 		} 
-		else if ($this->file_count % 2 !== 0) 
+		elseif ($this->file_count % 2 !== 0) 
 		{
 			echo "Error: There are an odd number of files in the directory. Exiting program.\n";
 			//Delete files from directory
 			//Logging goes here.
 			exit;
 		} 
-		else 
+		elseif ($this->file_count % 2 == 0 and $this->file_count > 1)
 		{
 			echo "There are ".$this->series_count." series in the directory to transfer."."\n";
 			$this->compare_series();
+		}
+		else
+		{
+			$this->kill();
 		}
 	}
 	
@@ -242,6 +257,14 @@ class Compare {
 		}
 	}
 
+
+	/**
+	 *	This function compares the returned value of expected series (from func get_expected_count) against the count of the files in the directory.
+	 *	If the returned value and count matches up the files will be uploaded to FRED.
+	 *	If the returned value is greater than the count then release date exceptions will be added for the non-updated series.
+	 *	If the returned value is less than the count then the program will error and close.
+	 *
+	 */
 	public function compare_series() {
 
 			$this->get_expected_count($this->frequency);
@@ -264,7 +287,11 @@ class Compare {
 			}
 	}
 
-
+	/**
+	 *	Messaging in the event that the expected number of series does not match the number of series to be transferred.
+	 *
+	 *
+	 */
 	public function series_count_different() {
 
 		if ($this->expected > $this->series_count)
@@ -282,6 +309,11 @@ class Compare {
 		
 	}
 
+	/**
+	 *	Messaging in the event that the expected number of series matches the number of series to be transferred.
+	 *
+	 *
+	 */
 	public function series_count_same() {
 
 		echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series "."(".$this->series_count.")".".\nProceeding to upload the files to FRED";
@@ -294,25 +326,16 @@ class Compare {
 		echo "\n";
 	}
 
-
-	public function success_message() {
-
-		echo "File upload successful.\n";
-	}
-
-
-	public function error_message() {
-
-		echo "Oops. There was an error. Please see the log for details.\n";
-	}
-
-
-
-
 	
+	/**
+	 *	Kill function that is used for error trapping.
+	 *
+	 *
+	 */
 	public function kill() {
 
 		echo "Something has gone horribly wrong. Turn back now...";
+		echo error_get_last();
 		exit;
 	}
 
