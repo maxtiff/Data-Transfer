@@ -203,7 +203,7 @@ class Compare {
 		}
 	}
 	
-	
+
 	/**
 	 *	This function compares the returned value of expected series (from func get_expected_count) against the count of the files in the directory.
 	 *	If the returned value and count matches up the files will be uploaded to FRED.
@@ -253,7 +253,7 @@ class Compare {
 				
 				$freq_item = ($json_object->seriess[$i]->frequency_short);
 				
-				if ($freq_item = $this->frequency)
+				if ($freq_item == $this->frequency)
 				{
 					$expected_count[$i] = $freq_item;
 					$i++;
