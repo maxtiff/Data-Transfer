@@ -136,13 +136,12 @@ class Compare {
 		$this->file_count = count($this->files);
 		$this->series_count = ($this->file_count)/2;
 		$this->api_key = "76bb1186e704598b725af0a27159fdfc";
-		$this->release_id = 95; //$release_id;
-		$this->frequency = "Q"; //$frequency;
+		$this->release_id = 97; //$release_id;
+		$this->frequency = "M"; //$frequency;
 		$this->request = "http://api.stlouisfed.org/fred/release/series?release_id=$this->release_id&api_key=$this->api_key&file_type=json";
 		$this->ch = curl_init();
 		$this->download_obj = curl_exec($this->ch);
 		$this->expected = NULL;
-		$this->matches = NULL;
 	}
 
 	/**
@@ -213,24 +212,18 @@ class Compare {
 	 */
 	public function compare_series() {
 
-			$this->get_expected_count();
-			if ($this->expected == $this->series_count) 
-			{
-				$this->series_count_same();
-				//$this->transfer_series();
-			} 
-			elseif ($this->expected > $this->series_count)
-			{
-				$this->series_count_different();
-				//Logging goes here.
-				exit;
-			} 
-			else
-			{
-				$this->series_count_different();
-				//Logging goes here.
-				exit;
-			}
+		$this->get_expected_count();
+		if ($this->expected == $this->series_count) 
+		{
+			$this->series_count_same();
+			//$this->transfer_series();
+		} 
+		else
+		{
+			$this->series_count_different();
+			//Logging goes here.
+			exit;
+		} 
 	}
 
 
@@ -307,7 +300,8 @@ class Compare {
 
 		if ($this->expected > $this->series_count)
 		{
-			echo "The ".$this->series_count." series to transfer is less than the ".$this->expected." expected series.\nExiting program.\n";	
+			echo "The ".$this->series_count." series to transfer is less than the ".$this->expected." expected series.\nExiting program.\n";
+			//Create release date exception.	
 		}
 		elseif ($this->expected < $this->series_count)
 		{
