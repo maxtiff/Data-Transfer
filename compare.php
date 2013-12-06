@@ -124,11 +124,12 @@ class Compare {
 	const USERAGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0";
 
 
+	
+	public function __construct(/*$dir, $release_id*, *$frequency*/) {
 	/**
 	 * 	Constructor function to initialize class and assign variables.
 	 *
 	 */
-	public function __construct(/*$dir, $release_id*, *$frequency*/) {
 
 		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));;
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/"; //$dir
@@ -144,11 +145,14 @@ class Compare {
 		$this->expected = NULL;
 	}
 
+	
+	public function validate_dir() {
 	/**
 	 *	Validate directory dependent on OS. 
 	 *
+	 *	@return void
+	 *	@access public
 	 */
-	public function validate_dir() {
 
 		$os = php_uname('s');
 		if ($os == 'Linux') 
@@ -162,6 +166,8 @@ class Compare {
 	}
 
 
+	
+	public function count_series() {
 	/**
 	 * 	This function validates the count of series to upload. 
 	 * 	The program will error if there is only one file, there are no files, or if 
@@ -170,8 +176,10 @@ class Compare {
 	 *	If there are an even number of files the program will proceed to validate whether 
 	 *	the series count matches the expected count of files to be uploaded.
 	 *
-	 */
-	public function count_series() {
+	 *	@return void
+	 *	@access public
+	 */	
+
 		if ($this->file_count == 0)
 		{
 			echo "Error: There are no files in the directory. Exiting program.\n";
@@ -203,14 +211,17 @@ class Compare {
 	}
 	
 
+	
+	public function compare_series() {
 	/**
 	 *	This function compares the returned value of expected series (from func get_expected_count) against the count of the files in the directory.
 	 *	If the returned value and count matches up the files will be uploaded to FRED.
 	 *	If the returned value is greater than the count then release date exceptions will be added for the non-updated series.
 	 *	If the returned value is less than the count then the program will error and close.
 	 *
+	 *	@return void
+	 *	@access public
 	 */
-	public function compare_series() {
 
 		$this->get_expected_count();
 		if ($this->expected == $this->series_count) 
@@ -227,20 +238,30 @@ class Compare {
 	}
 
 
+	
+	public function get_expected_count() {
 	/**
 	 *	This function gets the expected series count by counting all of the series in a release that 
 	 *	have the required frequency.
+	 *	
+	 *	The download_json() function is used to get the JSON object.
 	 *
-	 *
-	 */
-	public function get_expected_count() {
-		
+	 *	@return int
+	 *	@access public
+	 */	
+
 		$this->download_json();
+		
+		//Prepare JSON object for scanning.
 		$json_object = json_decode($this->download_obj);
+		
+		//Validate that encoded JSON object has been assigned to variable
 		if (isset($json_object)) 
 		{
 			$i = 0;
 			$expected_count = array();
+			
+			//Loop through each subsequent item in the 'seriess' subsection of the JSON object.
 			while (isset($json_object->seriess[$i])) 
 			{
 				
@@ -254,8 +275,8 @@ class Compare {
 				elseif ($freq_item !== $this->frequency)
 				{
 					echo "Could not determine the series count that is listed in the downloaded file.\n";
-                        //Logging goes here.
-                        exit;
+                    //Logging goes here.
+                    exit;
 				}
 				else
 				{
@@ -272,12 +293,13 @@ class Compare {
 	}
 
 
+	public function download_json() {
 	/**
 	 *	This function downloads the JSON object that is used to determine the count of series to compare against
 	 *	the count of files in the directory.
 	 *
+	 *	@access public
 	 */
-	public function download_json() {
 
 		curl_setopt($this->ch, CURLOPT_URL, $this->request);
 		curl_setopt($this->ch, CURLOPT_USERAGENT, Compare::USERAGENT);
@@ -291,12 +313,14 @@ class Compare {
 	}	
 
 
+
+	public function series_count_different() {
 	/**
 	 *	Messaging in the event that the expected number of series does not match the number of series to be transferred.
 	 *
-	 *
+	 *	@return void
+	 *	@access public
 	 */
-	public function series_count_different() {
 
 		if ($this->expected > $this->series_count)
 		{
@@ -314,14 +338,16 @@ class Compare {
 		
 	}
 
+	
+	public function series_count_same() {
 	/**
 	 *	Messaging in the event that the expected number of series matches the number of series to be transferred.
 	 *
-	 *
+	 *	@return void
+	 *	@access public
 	 */
-	public function series_count_same() {
 
-		echo "The expected number of series "."(".$this->expected.")"." matches the number of processed series "."(".$this->series_count.").\nProceeding to upload the files to FRED";
+		echo "The expected number of series (".$this->expected.") matches the number of processed series (".$this->series_count.").\nProceeding to upload the files to FRED";
 
 		for ($seconds = 0; $seconds < 5; $seconds++) 
 		{
@@ -332,12 +358,14 @@ class Compare {
 	}
 
 	
+	
+	public function kill() {
 	/**
 	 *	Kill function that is used for error trapping.
+	 *	This should be used at the very end of a conditional statement, once all possible conditions have been exhausted.
 	 *
-	 *
+	 *	@access public
 	 */
-	public function kill() {
 
 		echo "Something has gone horribly wrong. Turn back now...";
 		echo error_get_last();
@@ -345,13 +373,14 @@ class Compare {
 	}
 
 
-	/**
-	 * Destructor
-	 *
-	 */
+	
 
 	public function __destruct() {
-		
+	/**
+	* 	Destructor
+	*
+	*	@access public
+	*/
 	}
 }
 
