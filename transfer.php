@@ -88,7 +88,7 @@
 		            continue;
 		        }
 
-		        if(is_file($fixed_dir.$file))
+		        if(is_file($fixed_dir."\\".$file))
 		        {
 		            echo "Adding $file to archive...\n";
 		            $zip->addFile($fixed_dir.$file);
