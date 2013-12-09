@@ -30,6 +30,14 @@ class Transfer {
 	public $dir;
 
 	/**
+	 *	Location of ap parameter file used for secure access to ap server.
+	 *
+	 *	@var string
+	 *	@access public
+	 */
+	public $ap_file;
+
+	/**
 	 *	Aggregate volume of files in the directory in KBs. Returned from get_directory_size() function.	
 	 *
 	 *	@var NULL
@@ -37,13 +45,7 @@ class Transfer {
 	 */
 	public $file_volume;
 
-	/**
-	 *	Flag to check if files were zipped.
-	 *
-	 *	@var book
-	 *	@access public
-	 */
-	public $zipped;
+
 
 	/********************************************************************************
 	 * 	AP Server Command Variables 												*
@@ -73,7 +75,7 @@ class Transfer {
 	 *	KB threshold for file volume. If the file volume exceeds this number then 	*
 	 *	all of the files in the directory are compressed into a zip file.			*
 	 ********************************************************************************/
-	const THRESHOLD = 1000; 
+	const THRESHOLD = 1000;
 
 	/**
 	 * 	Constructor function to initialize class and assign variables.
@@ -84,10 +86,13 @@ class Transfer {
 	
 		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/";
+		$this->ap_file = "C:/Users/$this->user_name/Documents/ap.ppk";
+		$this->zip_file = "test.zip";
 		$this->destination_dir = "/home-ldap/$this->user_name/test_transfer/"; //"/www/fred/data/.../"
 		$this->file_volume= NULL;
 		$this->server = $this->user_name."@ap185.stlouisfed.org";
-		$this->scp_copy_command = "pscp -i C:/Users/".$user_name."/Documents/ap.ppk "
+		$this->ssh_copy = "pscp -i C:/Users/$this->user_name/Documents/ap.ppk ";
+		$this->ssh_transfer = $this->ssh_copy.$this->dir.$this->zip_file." ".$this->server.":".$this->destination_dir." 2>&1";
 		// $this->script_commands = array('sh_file_delete_all_files' => "rm -fr ".$source_directory."* 2>&1",
 		// 				   'sh_file_unzip_file' => "unzip -o ".$tmpfdir.$zip_file." -d ".$source_directory." 2>&1",
 		// 				   'sh_file_delete_zip_file' => "rm -fr ".$tmpfdir.$zip_file." 2>&1",
@@ -102,7 +107,7 @@ class Transfer {
 
 
 	public function transfer_series() {
-		//exec($)
+		exec($this->ssh_transfer);
 	}
 
 	/**
@@ -168,7 +173,8 @@ class Transfer {
 	    }
 	     
 	    closedir($dh);
-	     
+	    
+	    //Convert volume from Bs to KBs 
 	    $this->file_volume = ($dir_size / 1000);
 	    echo $this->file_volume." KBs\n";
 	    return $this->file_volume;
@@ -183,7 +189,7 @@ class Transfer {
 
 		$zip = new ZipArchive;
 
-		$archive = $zip->open("$this->dir"."test.zip", ZipArchive::CREATE);
+		$archive = $zip->open("$this->dir"."$this->zip_file", ZipArchive::CREATE);
 		
 		if ($archive === True) 
 		{
