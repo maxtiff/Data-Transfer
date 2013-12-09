@@ -123,14 +123,13 @@ class Compare {
 	const USERAGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0";
 
 
-	
-	public function __construct(/*$dir, $release_id*, *$frequency*/) {
 	/**
 	 * 	Constructor function to initialize class and assign variables.
 	 *
 	 *	@access public
 	 */
-
+	public function __construct(/*$dir, $release_id*, *$frequency*/) {
+	
 		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/"; //$dir
 		$this->files = array_diff(scandir($this->dir), array('..', '.'));
@@ -145,15 +144,14 @@ class Compare {
 		$this->expected = NULL;
 	}
 
-	
-	public function validate_dir() {
 	/**
 	 *	Validate directory dependent on OS. 
 	 *
 	 *	@return void
 	 *	@access public
 	 */
-
+	public function validate_dir() {
+	
 		$os = php_uname('s');
 		if ($os == 'Linux') 
 		{
@@ -166,8 +164,6 @@ class Compare {
 	}
 
 
-	
-	public function count_series() {
 	/**
 	 * 	This function validates the count of series to upload. 
 	 * 	The program will error if there is only one file, there are no files, or if 
@@ -179,6 +175,7 @@ class Compare {
 	 *	@return void
 	 *	@access public
 	 */	
+	public function count_series() {
 
 		if ($this->file_count == 0)
 		{
@@ -211,8 +208,6 @@ class Compare {
 	}
 	
 
-	
-	public function compare_series() {
 	/**
 	 *	This function compares the returned value of expected series (from func get_expected_count) against the count of the files in the directory.
 	 *	If the returned value and count matches up the files will be uploaded to FRED.
@@ -224,7 +219,8 @@ class Compare {
 	 *	@return void
 	 *	@access public
 	 */
-
+	public function compare_series() {
+	
 		$this->get_expected_count();
 		if ($this->expected == $this->series_count) 
 		{
@@ -240,8 +236,6 @@ class Compare {
 	}
 
 
-	
-	public function get_expected_count() {
 	/**
 	 *	This function gets the expected series count by counting all of the series in a release that 
 	 *	have the required frequency.
@@ -253,7 +247,8 @@ class Compare {
 	 *	@return int
 	 *	@access public
 	 */	
-
+	public function get_expected_count() {
+	
 		$this->download_json();
 		
 		//Prepare JSON object for scanning.
@@ -380,14 +375,13 @@ class Compare {
 	}
 
 
-	
-
-	public function __destruct() {
 	/**
 	* 	Destructor
 	*
 	*	@access public
 	*/
+	public function __destruct() {
+	
 	}
 
 }
