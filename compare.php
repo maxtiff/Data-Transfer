@@ -10,11 +10,11 @@
 
 class Compare {
 	
-	/**
-	 *	Local Network Variables
-	 *	These variables set the parameters that are used for local processing prior the to the transfer of data to the AP server.
-	 *
-	 */
+	/********************************************************************************
+	 *	Local Network Variables 													*
+	 *	These variables set the parameters that are used for local processing prior *
+	 *	the to the transfer of data to the AP server.								*
+	 ********************************************************************************/
 	
 	/**
 	 *	User name for local directory and AP access. 	
@@ -115,11 +115,10 @@ class Compare {
 	public $expected;
 
 
-	/**
-	 *	Constants
-	 *	Web proxy and browser useragent for curl download functions.
-	 *
-	 */
+	/********************************************************************************
+	 *	Constants 																	*
+	 *	Web proxy and browser useragent for curl download functions.				*
+	 ********************************************************************************/
 	const PROXY = "http://h1proxy.frb.org:8080/";
 	const USERAGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0";
 
@@ -129,9 +128,10 @@ class Compare {
 	/**
 	 * 	Constructor function to initialize class and assign variables.
 	 *
+	 *	@access public
 	 */
 
-		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));;
+		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/"; //$dir
 		$this->files = array_diff(scandir($this->dir), array('..', '.'));
 		$this->file_count = count($this->files);
@@ -219,6 +219,8 @@ class Compare {
 	 *	If the returned value is greater than the count then release date exceptions will be added for the non-updated series.
 	 *	If the returned value is less than the count then the program will error and close.
 	 *
+	 *	This function uses the get_expected_count() function for comparison.
+	 *
 	 *	@return void
 	 *	@access public
 	 */
@@ -246,6 +248,8 @@ class Compare {
 	 *	
 	 *	The download_json() function is used to get the JSON object.
 	 *
+	 *	This function is used in the compare_series() function.
+	 *
 	 *	@return int
 	 *	@access public
 	 */	
@@ -261,10 +265,11 @@ class Compare {
 			$i = 0;
 			$expected_count = array();
 			
-			//Loop through each subsequent item in the 'seriess' subsection of the JSON object.
+			//Loop through each item (series) in the 'seriess' subsection of the JSON object.
 			while (isset($json_object->seriess[$i])) 
 			{
 				
+				//Assign string from 'frequency_short' key ('D','W','BW','M','Q','SA','A') to check against the expected series frequency in order to determine the count of files that are to be uploaded.
 				$freq_item = ($json_object->seriess[$i]->frequency_short);
 				
 				if ($freq_item == $this->frequency)
@@ -297,6 +302,8 @@ class Compare {
 	/**
 	 *	This function downloads the JSON object that is used to determine the count of series to compare against
 	 *	the count of files in the directory.
+	 *
+	 *	This function is used in the get_expected_count() function.
 	 *
 	 *	@access public
 	 */
@@ -382,6 +389,7 @@ class Compare {
 	*	@access public
 	*/
 	}
+
 }
 
 ?>
