@@ -86,8 +86,8 @@ class Transfer {
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/";
 		$this->destination_dir = "/home-ldap/$this->user_name/test_transfer/"; //"/www/fred/data/.../"
 		$this->file_volume= NULL;
-		$this->zipped = False;
 		$this->server = $this->user_name."@ap185.stlouisfed.org";
+		$this->scp_copy_command = "pscp -i C:/Users/".$user_name."/Documents/ap.ppk "
 		// $this->script_commands = array('sh_file_delete_all_files' => "rm -fr ".$source_directory."* 2>&1",
 		// 				   'sh_file_unzip_file' => "unzip -o ".$tmpfdir.$zip_file." -d ".$source_directory." 2>&1",
 		// 				   'sh_file_delete_zip_file' => "rm -fr ".$tmpfdir.$zip_file." 2>&1",
@@ -180,8 +180,6 @@ class Transfer {
 	 *	@access public
 	 */
 	public function zip_files() {
-	
-		$this->zipped = True;
 
 		$zip = new ZipArchive;
 
@@ -207,15 +205,11 @@ class Transfer {
 		        if(is_file("$this->dir"."$file"))
 		        {
 		            echo "Adding $file to archive...\n";
-
-		            //For the addFile function to work correctly (i.e. to not zip the file with its absolute directory tree), a relative path for each file to be added to the zip file must be provided via the 2nd parameter of the function.
+		            //For the addFile function to work correctly (i.e. to not zip the file with its absolute directory tree), a relative path for each compressed file must be provided via the 2nd parameter of the function.
 		            $zip->addFile("$this->dir"."$file", $file);
-		            //unlink("$this->dir"."$file");
 		        }
 			}
 			$zip->close();
-
-
 		}
 		else
 		{
