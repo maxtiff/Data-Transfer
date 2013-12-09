@@ -292,8 +292,6 @@ class Compare {
 		}
 	}
 
-
-	public function download_json() {
 	/**
 	 *	This function downloads the JSON object that is used to determine the count of series to compare against
 	 *	the count of files in the directory.
@@ -302,6 +300,8 @@ class Compare {
 	 *
 	 *	@access public
 	 */
+	public function download_json() {
+	
 
 		curl_setopt($this->ch, CURLOPT_URL, $this->request);
 		curl_setopt($this->ch, CURLOPT_USERAGENT, Compare::USERAGENT);
@@ -315,14 +315,14 @@ class Compare {
 	}	
 
 
-
-	public function series_count_different() {
 	/**
 	 *	Messaging in the event that the expected number of series does not match the number of series to be transferred.
 	 *
 	 *	@return void
 	 *	@access public
 	 */
+	public function series_count_different() {
+
 
 		if ($this->expected > $this->series_count)
 		{
@@ -340,14 +340,14 @@ class Compare {
 		
 	}
 
-	
-	public function series_count_same() {
 	/**
 	 *	Messaging in the event that the expected number of series matches the number of series to be transferred.
 	 *
 	 *	@return void
 	 *	@access public
-	 */
+	 */	
+	public function series_count_same() {
+
 
 		echo "The expected number of series (".$this->expected.") matches the number of processed series (".$this->series_count.").\nProceeding to upload the files to FRED";
 
@@ -360,14 +360,14 @@ class Compare {
 	}
 
 	
-	
-	public function kill() {
 	/**
-	 *	Kill function that is used for error trapping.
-	 *	This should be used at the very end of a conditional statement, once all possible conditions have been exhausted.
-	 *
-	 *	@access public
-	 */
+	*	Kill function that is used for error trapping.
+	*	This should be used at the very end of a conditional statement, once all possible conditions have been exhausted.
+	*
+	*	@access public
+	*/
+
+	public function kill() {
 
 		echo "Something has gone horribly wrong. Turn back now...";
 		echo error_get_last();
