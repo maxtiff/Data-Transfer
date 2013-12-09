@@ -6,7 +6,7 @@
 	 * 
 	 */
 
-	class Transfer {
+class Transfer {
 	
 	/**
 	 *	Local Attributes
@@ -60,7 +60,7 @@
 
 	/**
 	 *	Constants
-	 *	
+	 *	KB threshold for file volume. If the file volume exceeds this number then all of the files in the directory are compressed into a zip file.
 	 *
 	 */
 	const THRESHOLD = 1000; 
@@ -95,7 +95,7 @@
 	 *	This function gets the volume of the files in the directory; if the volume surpasses the defined threshold, the function will zip
 	 *	the files.
 	 *
-	 *
+	 *	@access public
 	 */
 		$this->get_directory_size($this->dir);
 
@@ -121,7 +121,7 @@
 
 	public function get_directory_size($directory) {
     /**
-     *	This function measures the file volume of the directory prior to the winzip operation. 
+     *	This function measures the file volume of the directory prior to the winzip operation and returns $file_volume in KBs. 
      *	
      *	@return float
      *	@access public
