@@ -5,15 +5,48 @@
 	 * 	@author h1tjm03
 	 * 
 	 */
-	
+
 	class Transfer {
+	
+	/**
+	 *	Local Attributes
+	 *	These attributes are used to determine file volume.
+	 */
+	
+	/**
+	 *	User name for local directory and AP access.
+	 *
+	 *	@var string
+	 *	@access public
+	 */
+	public $user_name;
+
+	/**
+	 *	Directory of files to be loaded. 	
+	 *
+	 *	@var string
+	 *	@access public 
+	 */
+	public $dir;
+
+	/**
+	 *	Aggregate volume of files in the directory in KBs. Returned from get_directory_size() function.	
+	 *
+	 *	@var NULL
+	 *	@access public 
+	 */
+	public $file_volume;
+
 	/**
 	 * 	AP Server Command Variables
 	 *	These commands are used to logon to the AP server and transfer the files.
+	 */
+
+	/**
+	 *
+	 *
 	 *
 	 */
-	public $user_name;
-	public $dir;
 	public $script_commands;
 	public $login_command;
 	public $zip_command;
@@ -27,10 +60,10 @@
 
 	/**
 	 *	Constants
-	 *
+	 *	
 	 *
 	 */
-	//const $file_volume_threshold = 
+	const THRESHOLD = 1000; 
 
 
 	public function __construct(/*$dir*/) {
@@ -57,62 +90,34 @@
 
 	}
 
-
-	public function zip_files() {
-	
+	public function file_volume_check () {
+	/**
+	 *	This function gets the volume of the files in the directory; if the volume surpasses the defined threshold, the function will zip
+	 *	the files.
+	 *
+	 *
+	 */
 		$this->get_directory_size($this->dir);
 
-		$zip = new ZipArchive;
-
-		$fixed_dir = preg_replace("[/]", "\\", $this->dir);
-
-		echo $this->dir."\n";
-		echo $fixed_dir."\n";
-
-		$archive = $zip->open($this->dir."test.zip", ZipArchive::CREATE);
-		
-		if ($archive === True) 
+		if ($this->file_volume >= THRESHOLD)
 		{
-			
-			if(!$dh=opendir($fixed_dir))
-	    	{
-	        echo false;
-	        return false;
-	    	}
-
-		    while($file = readdir($dh))
-		    {
-				if($file == "." || $file == "..")
-		        {
-		            echo "Skipping $file\n";
-		            continue;
-		        }
-
-		        if(is_file($fixed_dir."\\".$file))
-		        {
-		            echo "Adding $file to archive...\n";
-		            $zip->addFile($fixed_dir.$file);
-		        }
-			}
-
-			$zip->close();
-
+			echo "The volume of the files to be transfered is too large.\n Zipping files.";
+			$this->zip_files();
+		}
+		elseif (0 < $this->file_volume < THRESHOLD)
+		{
+			echo "Transfer\n";
+			continue;
 		}
 		else
 		{
-			echo "error\n";
+			echo "Something terrible has happened";
+			//insert a kill function extended from Compare class
+			exit;
 		}
 
-		
 	}
 
-
-	public function compare_transferred() {
-	}
-
-	public function file_volume_check () {
-		
-	}
 
 	public function get_directory_size($directory) {
     /**
@@ -152,5 +157,59 @@
 	    echo $this->file_volume." KBs\n";
 	    return $this->file_volume;
 	}
+
+
+	public function zip_files() {
+	/**
+	 *	This function zips the files in the directory if the aggregate volume of the files surpasses the defined threshold of 1000 KBs.
+	 *
+	 *	@access public
+	 */
+		$zip = new ZipArchive;
+
+		$archive = $zip->open("$this->dir"."test.zip", ZipArchive::CREATE);
+		
+		if ($archive === True) 
+		{
+			
+			if(!$dh=opendir($this->dir))
+	    	{
+	        echo false;
+	        return false;
+	    	}
+
+		    while($file = readdir($dh))
+		    {
+				if($file == "." || $file == "..")
+		        {
+		            echo "Skipping $file\n";
+		            continue;
+		        }
+
+		        if(is_file("$this->dir"."$file"))
+		        {
+		            echo "Adding $file to archive...\n";
+
+		            //For the addFile function to work correctly (i.e. to not zip the file with its absolute directory tree), a relative path for each file to be added to the zip file must be provided via the 2nd parameter of the function.
+		            $zip->addFile("$this->dir"."$file", $file);
+		        }
+			}
+
+			$zip->close();
+
+		}
+		else
+		{
+			echo "error\n";
+		}
+	}
+
+
+	public function compare_transferred() {
+	}
+
+	
+
+	
 }
 ?>
