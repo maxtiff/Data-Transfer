@@ -8,10 +8,10 @@
 
 class Transfer {
 	
-	/**
-	 *	Local Attributes
-	 *	These attributes are used to determine file volume.
-	 */
+	/********************************************************************************
+	 *	Local Attributes 															*
+	 *	These attributes are used to determine file volume.							*
+	 ********************************************************************************/
 	
 	/**
 	 *	User name for local directory and AP access.
@@ -37,19 +37,22 @@ class Transfer {
 	 */
 	public $file_volume;
 
-	/**
-	 * 	AP Server Command Variables
-	 *	These commands are used to logon to the AP server and transfer the files.
-	 */
+
+	/********************************************************************************
+	 * 	AP Server Command Variables 												*
+	 *	These commands are used to logon to the AP server and transfer the files.	*
+	 ********************************************************************************/
 
 	/**
+	 *	Server location for SSH login command.
 	 *
-	 *
-	 *
+	 *	@var string
+	 *	@access public
 	 */
+	public $server;
 	public $script_commands;
 	public $login_command;
-	public $zip_command;
+	public $unzip_command;
 	public $scp_copy_command;
 	public $delete_command;
 	public $transfer_command;
@@ -58,20 +61,25 @@ class Transfer {
 	public $set_permissions_command;
 	public $destination_directory;
 
-	/**
-	 *	Constants
-	 *	KB threshold for file volume. If the file volume exceeds this number then all of the files in the directory are compressed into a zip file.
-	 *
-	 */
+	/********************************************************************************
+	 *	Constants 																	*
+	 *	KB threshold for file volume. If the file volume exceeds this number then 	*
+	 *	all of the files in the directory are compressed into a zip file.			*
+	 ********************************************************************************/
 	const THRESHOLD = 1000; 
 
 
 	public function __construct(/*$dir*/) {
-
+	/**
+	 * 	Constructor function to initialize class and assign variables.
+	 *
+	 *	@access public
+	 */
 		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/";
 		$this->destination_dir = "/home-ldap/$this->user_name/test_transfer/"; //"/www/fred/data/.../"
 		$this->file_volume= NULL;
+		$this->server = $this->user_name."@ap185.stlouisfed.org";
 		// $this->script_commands = array('sh_file_delete_all_files' => "rm -fr ".$source_directory."* 2>&1",
 		// 				   'sh_file_unzip_file' => "unzip -o ".$tmpfdir.$zip_file." -d ".$source_directory." 2>&1",
 		// 				   'sh_file_delete_zip_file' => "rm -fr ".$tmpfdir.$zip_file." 2>&1",
@@ -92,7 +100,7 @@ class Transfer {
 
 	public function file_volume_check () {
 	/**
-	 *	This function gets the volume of the files in the directory; if the volume surpasses the defined threshold, the function will zip
+	 *	This function takes the volume of the files in the directory from get_directory_size() function; if the volume surpasses the defined threshold, the function will zip
 	 *	the files.
 	 *
 	 *	@access public
@@ -101,7 +109,7 @@ class Transfer {
 
 		if ($this->file_volume >= THRESHOLD)
 		{
-			echo "The volume of the files to be transfered is too large.\n Zipping files.";
+			echo "The volume of the files to be transferred exceeds 1000 KBs.\n Zipping files.";
 			$this->zip_files();
 		}
 		elseif (0 < $this->file_volume < THRESHOLD)
@@ -208,8 +216,6 @@ class Transfer {
 	public function compare_transferred() {
 	}
 
-	
-
-	
 }
+
 ?>
