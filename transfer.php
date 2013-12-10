@@ -88,7 +88,8 @@ class Transfer {
 	 *
 	 *	@access public
 	 */
-	public function __construct(/*$dir*/) {
+	public function __construct(/*$dir*/) 
+	{
 	
 		$this->user_name = strtolower(exec("ECHO %USERNAME%", $output_temp, $return_temp));
 		$this->dir = "C:/Users/$this->user_name/Documents/test_directory/";
@@ -111,17 +112,18 @@ class Transfer {
 		// 				   'sh_file_set_permissions' => "/www/httpd/allow_permissions ".$source_directory." 2>&1");
 	}
 
-	public function run() {
-
-
+	public function run() 
+	{
 	}
 
-	public function validate() {
-
+	public function validate() 
+	{
 	}
 
 
-	public function transfer_series() {
+	public function transfer_series() 
+	{
+		
 		$this->file_volume_check();
 		
 		if ($this->zipped == True) 
@@ -164,7 +166,8 @@ class Transfer {
 	 *
 	 *	@access public
 	 */
-	public function file_volume_check () {
+	public function file_volume_check () 
+	{
 	
 		$this->get_directory_size($this->dir);
 
@@ -193,7 +196,8 @@ class Transfer {
 	 *	@return float
 	 *	@access public
 	 */
-	public function get_directory_size($directory) {
+	public function get_directory_size($directory) 
+	{
     
 	    $dir_size=0;
 	     
@@ -235,7 +239,8 @@ class Transfer {
 	 *
 	 *	@access public
 	 */
-	public function zip_files() {
+	public function zip_files() 
+	{
 
 		$zip = new ZipArchive;
 
@@ -276,7 +281,8 @@ class Transfer {
 	}
 
 
-	public function compare_transferred() {
+	public function compare_transferred() 
+	{
 
 	}
 
