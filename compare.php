@@ -138,29 +138,47 @@ class Compare {
 		$this->api_key = "76bb1186e704598b725af0a27159fdfc";
 		$this->release_id = 97; //$release_id;
 		$this->frequency = "M"; //$frequency;
+		$this->freq_short_dict = array('D','W','BW','M','Q','SA','A');
 		$this->request = "http://api.stlouisfed.org/fred/release/series?release_id=$this->release_id&api_key=$this->api_key&file_type=json";
 		$this->ch = curl_init();
 		$this->download_obj = curl_exec($this->ch);
 		$this->expected = NULL;
 	}
 
+	
+	public function run() {
+		$this->validate();
+		$this->count_series();
+	}
+
 	/**
-	 *	Validate directory dependent on OS. 
+	 *	Validation 
 	 *
 	 *	@return void
 	 *	@access public
 	 */
-	public function validate_dir() {
+	public function validate() {
 	
+		if (!is_numeric($this->release_id)) 
+		{
+			echo 'The release id must be a number. Exiting program';
+			exit; 
+		}
+		
+		if (!in_array($this->frequency, $this->freq_short_dict))
+		{
+			echo 
+			exit;		
+		}
+
 		$os = php_uname('s');
 		if ($os == 'Linux') 
 		{
 			$this->dir = preg_replace("C:/Users/$this->user_name/Documents/test_directory/", "/home-ldap/$this->user_name/", $this->dir);
+			continue;
 		}
-		else 
-		{
-			echo "File Location: ".$this->dir."\n";
-		}
+		
+
 	}
 
 
@@ -177,6 +195,8 @@ class Compare {
 	 */	
 	public function count_series() {
 
+		echo "Counting files in $this->dir\n";
+		
 		if ($this->file_count == 0)
 		{
 			echo "Error: There are no files in the directory. Exiting program.\n";
@@ -347,7 +367,6 @@ class Compare {
 	 *	@access public
 	 */	
 	public function series_count_same() {
-
 
 		echo "The expected number of series (".$this->expected.") matches the number of processed series (".$this->series_count.").\nProceeding to upload the files to FRED";
 
