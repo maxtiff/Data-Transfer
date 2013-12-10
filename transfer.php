@@ -90,7 +90,7 @@ class Transfer {
 		$this->zip_file = "test.zip";
 		$this->destination_dir = "/home-ldap/$this->user_name/test_transfer/"; //"/www/fred/data/.../"
 		$this->file_volume= NULL;
-		$this->server = $this->user_name."@ap185.stlouisfed.org";
+		$this->server = $this->user_name."@ap.stlouisfed.org";
 		$this->ssh_copy = "pscp -i C:/Users/$this->user_name/Documents/ap.ppk ";
 		$this->ssh_transfer = $this->ssh_copy.$this->dir.$this->zip_file." ".$this->server.":".$this->destination_dir." 2>&1";
 		// $this->script_commands = array('sh_file_delete_all_files' => "rm -fr ".$source_directory."* 2>&1",
@@ -107,36 +107,8 @@ class Transfer {
 
 
 	public function transfer_series() {
-		exec($this->ssh_transfer);
-	}
-
-	/**
-	 *	This function takes the volume of the files in the directory from get_directory_size() function; if the volume surpasses the defined threshold, the function will zip
-	 *	the files.
-	 *
-	 *	@access public
-	 */
-	public function file_volume_check () {
-	
-		$this->get_directory_size($this->dir);
-
-		if ($this->file_volume >= THRESHOLD)
-		{
-			echo "The volume of the files to be transferred exceeds 1000 KBs.\n Zipping files.";
-			$this->zip_files();
-		}
-		elseif ($this->file_volume < THRESHOLD || $this->file_volume > 0)
-		{
-			echo "Transfer\n";
-			continue;
-		}
-		else
-		{
-			echo "Something terrible has happened";
-			//insert a kill function extended from Compare class
-			exit;
-		}
-
+		$this->file_volume_check();
+		system($this->ssh_transfer);
 	}
 
 	/**
@@ -179,6 +151,37 @@ class Transfer {
 	    echo $this->file_volume." KBs\n";
 	    return $this->file_volume;
 	}
+
+
+	/**
+	 *	This function takes the volume of the files in the directory from get_directory_size() function; if the volume surpasses the defined threshold, the function will zip
+	 *	the files.
+	 *
+	 *	@access public
+	 */
+	public function file_volume_check () {
+	
+		$this->get_directory_size($this->dir);
+
+		if ($this->file_volume >= THRESHOLD)
+		{
+			echo "The volume of the files to be transferred exceeds 1000 KBs.\n Zipping files.";
+			$this->zip_files();
+		}
+		elseif ($this->file_volume < THRESHOLD || $this->file_volume > 0)
+		{
+			echo "Transfer\n";
+			continue;
+		}
+		else
+		{
+			echo "Something terrible has happened";
+			//insert a kill function extended from Compare class
+			exit;
+		}
+
+	}
+
 
 	/**
 	 *	This function zips the files in the directory if the aggregate volume of the files surpasses the defined threshold of 1000 KBs.
