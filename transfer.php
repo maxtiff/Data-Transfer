@@ -101,6 +101,7 @@ class Transfer {
 		$this->server = $this->user_name."@ap.stlouisfed.org";
 		$this->ssh_command = "plink -ssh ".$this->server." -i ".$this->ap_file." -m ";
 		$this->ssh_copy = "pscp -i C:/Users/$this->user_name/Documents/ap.ppk ";
+		$this->ssh_transfer_no_zip = $this->ssh_copy.$this->dir.$file." ".$this->server.":".$this->destination_dir." 2>&1";
 		$this->ssh_transfer_zip = $this->ssh_copy.$this->dir.$this->zip_file." ".$this->server.":".$this->destination_dir." 2>&1";
 		$this->ssh_unzip = "unzip ".$this->destination_dir.$this->zip_file." -d ".$this->destination_dir." 2>&1";
 		//$this->ssh_transfer_all = $this->ssh_copy.$this->dir.*." ".$this->server.":".$this->destination_dir." 2>&1";
@@ -152,10 +153,12 @@ class Transfer {
 		        if(is_file("$this->dir"."$file"))
 		        {
 		            echo "Transferring $file to AP...\n";
-		            system($this->ssh_copy.$this->dir.$file." ".$this->server.":".$this->destination_dir." 2>&1");
+		            system($this->ssh_transfer_no_zip);
 		        }
 			}
 
+			echo "Checking to see if all files have been transferred.";
+			//$this->compare_transferred();
 		}
 		
 	}
@@ -171,14 +174,14 @@ class Transfer {
 	
 		$this->get_directory_size($this->dir);
 
-		if ($this->file_volume >= Transfer::THRESHOLD)
+		if ($this->file_volume >= self::THRESHOLD)
 		{
 			echo "The volume of the files to be transferred exceeds 1000 KBs.\n Zipping files.\n";
 			$this->zip_files();
 		}
-		elseif ($this->file_volume < Transfer::THRESHOLD || $this->file_volume > 0)
+		elseif ($this->file_volume < self::THRESHOLD || $this->file_volume > 0)
 		{
-			echo "The volume of the files to be transferred is less than the 1000 KBs threshold.\n";
+			echo "The volume of the files to be transferred is less than the 100 KBs threshold.\n";
 		}
 		else
 		{
@@ -230,6 +233,7 @@ class Transfer {
 	    $this->file_volume = ($dir_size / 1000);
 	    echo $this->file_volume." KBs\n";
 	    return $this->file_volume;
+
 	}
 
 
@@ -278,6 +282,7 @@ class Transfer {
 		{
 			echo "error\n";
 		}
+
 	}
 
 
