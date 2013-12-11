@@ -50,7 +50,7 @@ class Compare {
 	public $file_count;
 
 	/**
-	 *	Divides the integer in $files by two to get the amount of series that will be uploaded. 	
+	 *	Divides the integer assigned to $files by two to get the amount of series that will be uploaded. 	
 	 *
 	 *	@var integer
 	 *	@access public 
@@ -161,13 +161,13 @@ class Compare {
 	
 		if (!is_numeric($this->release_id)) 
 		{
-			echo 'The release id must be a number. Exiting program';
+			echo 'The release id must be a number. Exiting program.';
 			exit; 
 		}
 		
 		if (!in_array($this->frequency, $this->freq_short_dict))
 		{
-			echo 
+			echo 'The frequency input is not in a valid format. Exiting program.';
 			exit;		
 		}
 
@@ -196,7 +196,7 @@ class Compare {
 	public function count_series() {
 
 		echo "Counting files in $this->dir\n";
-		
+
 		if ($this->file_count == 0)
 		{
 			echo "Error: There are no files in the directory. Exiting program.\n";
@@ -324,9 +324,9 @@ class Compare {
 	
 
 		curl_setopt($this->ch, CURLOPT_URL, $this->request);
-		curl_setopt($this->ch, CURLOPT_USERAGENT, Compare::USERAGENT);
+		curl_setopt($this->ch, CURLOPT_USERAGENT, self::USERAGENT);
 		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER,1);
-		curl_setopt($this->ch, CURLOPT_PROXY, Compare::PROXY);
+		curl_setopt($this->ch, CURLOPT_PROXY, self::PROXY);
 		
 		while (!isset($this->download_obj) || $this->download_obj === false || preg_match("/\<\!DOCTYPE HTML PUBLI/", $this->download_obj)) 
 		{
